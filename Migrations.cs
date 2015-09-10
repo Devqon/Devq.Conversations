@@ -14,13 +14,21 @@ namespace Devq.Conversations
                     .ContentPartRecord()
                     
                     .Column<int>("SubjectId")
-                    .Column<int>("Target_Id"));
+                    .Column<int>("TargetId")
+                    .Column<int>("InitiatorId"));
 
             SchemaBuilder.CreateTable(typeof (MessagePartRecord).Name,
                 table => table
                     .ContentPartRecord()
 
-                    .Column<bool>("Read"));
+                    .Column<bool>("Read")
+                    .Column<int>("Target")
+                    .Column<int>("Author"));
+
+            ContentDefinitionManager.AlterPartDefinition(typeof (MessagePart).Name,
+                part => part.WithField("Message", field => field
+                    .OfType("TextField")
+                    .WithSetting("TextFieldSettings.Flavor", "small")));
 
             ContentDefinitionManager.AlterTypeDefinition(Constants.MessageTypeName,
                 type => type
@@ -51,65 +59,11 @@ namespace Devq.Conversations
                     .WithPart("WidgetPart")
                     .WithSetting("Stereotype", "Widget"));
 
-            return 2;
-        }
-
-        public int UpdateFrom2() {
-
-            SchemaBuilder.AlterTable(typeof (MessagePartRecord).Name,
-                table => table.DropColumn("Author_Id"));
-
-            SchemaBuilder.AlterTable(typeof (MessagePartRecord).Name,
-                table => table.DropColumn("ConversationPartRecord_Id"));
-
-            SchemaBuilder.AlterTable(typeof (ConversationPartRecord).Name,
-                table => table
-                    .DropColumn("Initiator_Id"));
-
-            SchemaBuilder.AlterTable(typeof (ConversationPartRecord).Name,
-                table => table
-                    .AddColumn<int>("InitiatorId"));
-
-            SchemaBuilder.AlterTable(typeof (ConversationPartRecord).Name,
-                table => table
-                    .DropColumn("Target_Id"));
-
-            SchemaBuilder.AlterTable(typeof (ConversationPartRecord).Name,
-                table => table
-                    .AddColumn<int>("TargetId"));
-
-            ContentDefinitionManager.AlterPartDefinition(typeof (MessagePart).Name,
-                part => part.WithField("Message", field => field
-                    .OfType("TextField")
-                    .WithSetting("TextFieldSettings.Flavor", "small")));
-
-            ContentDefinitionManager.AlterTypeDefinition(Constants.MessageTypeName, 
-                type => type
-                    .RemovePart("BodyPart"));
-
-            return 3;
-        }
-
-        public int UpdateFrom3() {
-            
-            ContentDefinitionManager.AlterPartDefinition(typeof(ConversationablePart).Name,
+            ContentDefinitionManager.AlterPartDefinition(typeof (ConversationablePart).Name,
                 part => part
                     .Attachable());
 
-            return 4;
-        }
-
-        public int UpdateFrom4() {
-
-            SchemaBuilder.AlterTable(typeof (MessagePartRecord).Name,
-                table => table
-                    .AddColumn<int>("Target"));
-
-            SchemaBuilder.AlterTable(typeof(MessagePartRecord).Name,
-                table => table
-                    .AddColumn<int>("Author"));
-
-            return 5;
+            return 2;
         }
     }
 }
