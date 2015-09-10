@@ -1,0 +1,7 @@
+﻿@using Devq.Conversations.Extensions
+@using Orchard.ContentManagement
+@{
+    var contentItem = (IContent) Model.ContentItem;
+}
+
+<a href="@Url.Conversation(contentItem)" class="primaryAction button">@T("Start a conversation about this item")</a>

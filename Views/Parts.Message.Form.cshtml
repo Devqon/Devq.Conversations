@@ -1,0 +1,5 @@
+﻿@using (Html.BeginFormAntiForgeryPost(Url.Action("CreateMessage", "Conversation", new {area = "Devq.Conversations", conversationId = Model.ConversationId}))) {
+    @Display(Model.MessageEditorShape)
+    
+    <button class="primaryAction" type="submit">@T("Send")</button>
+}
