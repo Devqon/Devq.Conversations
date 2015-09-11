@@ -5,9 +5,9 @@ namespace Devq.Conversations.Models
 {
     public class MessagePart : ContentPart<MessagePartRecord>
     {
-        public bool Read {
-            get { return Retrieve(r => r.Read); }
-            set { Store(r => r.Read, value); }
+        public bool IsRead {
+            get { return Retrieve(r => r.IsRead); }
+            set { Store(r => r.IsRead, value); }
         }
 
         public int Target
@@ -25,7 +25,7 @@ namespace Devq.Conversations.Models
 
     public class MessagePartRecord : ContentPartRecord {
 
-        public virtual bool Read { get; set; }
+        public virtual bool IsRead { get; set; }
         public virtual int Target { get; set; }
         public virtual int Author { get; set; }
     }

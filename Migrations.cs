@@ -65,5 +65,18 @@ namespace Devq.Conversations
 
             return 2;
         }
+
+        public int UpdateFrom2() {
+
+            SchemaBuilder.AlterTable(typeof (MessagePartRecord).Name,
+                table => table
+                    .DropColumn("Read"));
+
+            SchemaBuilder.AlterTable(typeof (MessagePartRecord).Name,
+                table => table
+                    .AddColumn<bool>("IsRead"));
+
+            return 3;
+        }
     }
 }

@@ -53,11 +53,13 @@ namespace Devq.Conversations.Services
         public IContentQuery<MessagePart> GetUnreadMessagesQuery(int userId, int conversationId = 0) {
             if (conversationId > 0) {
                 return GetConversationMessagesQuery(conversationId)
-                    .Where<CommonPartRecord>(c => c.Container.Id == conversationId);
+                    .Where<CommonPartRecord>(c => c.Container.Id == conversationId)
+                    .Where<MessagePartRecord>(m => !m.IsRead);
             }
 
             return GetMessagesQuery()
-                .Where<CommonPartRecord>(c => c.Container.Id == conversationId);
+                .Where<CommonPartRecord>(c => c.Container.Id == conversationId)
+                .Where<MessagePartRecord>(m => !m.IsRead);
         } 
 
         public int GetUnreadMessagesCount(int userId, int conversationId = 0) {

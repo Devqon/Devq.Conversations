@@ -116,6 +116,8 @@ namespace Devq.Conversations.Controllers
 
             // Create -> update [-> cancel]
             var message = _contentManager.New<MessagePart>(Constants.MessageTypeName);
+
+            _contentManager.Create(message);
             _contentManager.UpdateEditor(message, this);
 
             if (!ModelState.IsValid) {
@@ -126,8 +128,6 @@ namespace Devq.Conversations.Controllers
                 message.Author = user.Id;
                 message.Target = conversation.InitiatorId == user.Id ? conversation.TargetId : conversation.InitiatorId;
                 message.As<CommonPart>().Container = conversation.ContentItem;
-
-                _contentManager.Create(message);
             }
 
             return RedirectToAction("Index", new {id = conversationId});
