@@ -133,6 +133,12 @@
   <ItemGroup>
     <Content Include="Views\Parts\Message.cshtml" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Parts.User.UnreadMessages.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Conversation\Details.cshtml" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

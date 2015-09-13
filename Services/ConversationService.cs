@@ -26,7 +26,7 @@ namespace Devq.Conversations.Services
 
         public IEnumerable<ConversationPart> GetConversationsByUser(int userId) {
             return GetConversationQuery()
-                .Where<CommonPartRecord>(c => c.OwnerId == userId)
+                .Where<ConversationPartRecord>(c => c.InitiatorId == userId || c.TargetId == userId)
                 .List();
         }
 
@@ -54,12 +54,11 @@ namespace Devq.Conversations.Services
             if (conversationId > 0) {
                 return GetConversationMessagesQuery(conversationId)
                     .Where<CommonPartRecord>(c => c.Container.Id == conversationId)
-                    .Where<MessagePartRecord>(m => !m.IsRead);
+                    .Where<MessagePartRecord>(m => m.Target == userId && !m.IsRead);
             }
 
             return GetMessagesQuery()
-                .Where<CommonPartRecord>(c => c.Container.Id == conversationId)
-                .Where<MessagePartRecord>(m => !m.IsRead);
+                .Where<MessagePartRecord>(m => m.Target == userId && !m.IsRead);
         } 
 
         public int GetUnreadMessagesCount(int userId, int conversationId = 0) {

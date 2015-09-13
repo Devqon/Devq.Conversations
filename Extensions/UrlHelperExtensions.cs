@@ -9,7 +9,11 @@ namespace Devq.Conversations.Extensions
             return urlHelper.Action("Index", "Conversation", new {area = "Devq.Conversations"});
         }
 
-        public static string Conversation(this UrlHelper urlHelper, IContent content) {
+        public static string Conversation(this UrlHelper urlHelper, int conversationId) {
+            return urlHelper.Action("Details", "Conversation", new { area = "Devq.Conversations", id = conversationId });
+        }
+
+        public static string StartConversation(this UrlHelper urlHelper, IContent content) {
             return urlHelper.Action("StartConversation", "Conversation", new {area = "Devq.Conversations", subjectId = content.Id});
         }
     }

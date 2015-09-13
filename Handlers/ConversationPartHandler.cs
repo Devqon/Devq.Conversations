@@ -25,6 +25,9 @@ namespace Devq.Conversations.Handlers
 
         private void SetMessagesRead(BuildDisplayContext ctx, ConversationPart part) {
 
+            if (ctx.DisplayType != "Detail")
+                return;
+
             var user = _workContextAccessor.GetContext().CurrentUser;
             if (user == null)
                 return;

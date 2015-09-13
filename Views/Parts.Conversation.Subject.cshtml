@@ -1,1 +1,2 @@
-﻿<h1>@Model.Subject.TitlePart.Title</h1>
+﻿@using Devq.Conversations.Extensions
+<h1><a href="@Url.Conversation((int) Model.ContentItem.Id)">@Model.Subject.TitlePart.Title</a></h1>

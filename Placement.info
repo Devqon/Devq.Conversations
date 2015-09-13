@@ -1,8 +1,8 @@
 ﻿<Placement>
   <Place Parts_Conversation_Subject="Header:before" />
   <Place Parts_Conversation_UnreadMessagesCount="Content:3" />
-  <Place Parts_Conversation_Messages="Content:15" />
   <Match DisplayType="Detail">
+    <Place Parts_Conversation_Messages="Content:15" />
     <Place Parts_Message_Form="Content:10" />
   </Match>
 
@@ -12,4 +12,6 @@
   <Match ContentType="Message">
     <Place Content_SaveButton="-" />
   </Match>
+  
+  <Place Parts_UnreadMessagesWidget="Content:5" />
 </Placement>

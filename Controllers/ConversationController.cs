@@ -8,6 +8,8 @@ using Orchard.Core.Common.Models;
 using Orchard.DisplayManagement;
 using Orchard.Localization;
 using Orchard.Themes;
+using Orchard.UI.Navigation;
+using Orchard.UI.Notify;
 
 namespace Devq.Conversations.Controllers
 {
@@ -23,45 +25,62 @@ namespace Devq.Conversations.Controllers
             _services = services;
 
             Shape = shapeFactory;
+            T = NullLocalizer.Instance;
         }
 
         public dynamic Shape { get; set; }
+        public Localizer T { get; set; }
 
-        public ActionResult Index(int id = 0) {
+        public ActionResult Index(PagerParameters pagerParameters) {
 
             var currentUser = _services.WorkContext.CurrentUser;
             if (currentUser == null) {
                 return HttpNotFound();
             }
 
-            if (id > 0) {
+            var query = _conversationService
+                .GetConversationQuery()
+                .Where<ConversationPartRecord>(c => c.InitiatorId == currentUser.Id || c.TargetId == currentUser.Id);
 
-                var conversation = _conversationService
-                    .GetConversationQuery()
-                    .Where<ConversationPartRecord>(c => c.Id == id)
-                    .List()
-                    .FirstOrDefault();
-
-                if (conversation == null)
-                    return HttpNotFound();
-
-                // Not in the conversation
-                if (conversation.As<CommonPart>().Owner.Id != currentUser.Id && conversation.TargetId != currentUser.Id) {
-                    return HttpNotFound();
-                }
-
-                var shape = _contentManager.BuildDisplay(conversation, "Detail");
-
-                return View(shape);
-            }
-
-            var conversations = _conversationService
-                .GetConversationsByUser(currentUser.Id);
+            var pager = new Pager(_services.WorkContext.CurrentSite, pagerParameters);
+            var maxPagedCount = _services.WorkContext.CurrentSite.MaxPagedCount;
+            if (maxPagedCount > 0 && pager.PageSize > maxPagedCount)
+                pager.PageSize = maxPagedCount;
+            var pagerShape = Shape.Pager(pager).TotalItemCount(maxPagedCount > 0 ? maxPagedCount : query.Count());
+            var pageOfContentItems = query.Slice(pager.GetStartIndex(), pager.PageSize).ToList();
 
             var list = Shape.List();
-            list.AddRange(conversations.Select(c => _contentManager.BuildDisplay(c, "Summary")));
+            list.AddRange(pageOfContentItems.Select(c => _contentManager.BuildDisplay(c, "Summary")));
 
-            return View(list);
+            var viewModel = Shape
+                .ViewModel()
+                .List(list)
+                .Pager(pagerShape);
+
+            return View(viewModel);
+        }
+
+        public ActionResult Details(int id) {
+
+            var currentUser = _services.WorkContext.CurrentUser;
+            if (currentUser == null)
+                return HttpNotFound();
+
+            var conversation = _contentManager
+                .Get<ConversationPart>(id);
+
+            if (conversation == null)
+                return HttpNotFound();
+
+            // Not in the conversation
+            if (conversation.InitiatorId != currentUser.Id && conversation.TargetId != currentUser.Id)
+            {
+                return HttpNotFound();
+            }
+
+            var shape = _contentManager.BuildDisplay(conversation, "Detail");
+
+            return View(shape);
         }
 
         public ActionResult StartConversation(int subjectId) {
@@ -73,6 +92,7 @@ namespace Devq.Conversations.Controllers
             var subject = _contentManager.Get(subjectId);
             if (subject == null)
                 return HttpNotFound();
+
             var common = subject.As<CommonPart>();
             if (common == null)
                 return HttpNotFound();
@@ -80,8 +100,10 @@ namespace Devq.Conversations.Controllers
             // Target is owner
             var owner = common.Owner;
             // Cannot create a conversation with yourself
-            //if (owner.Id == user.Id)
-            //    return HttpNotFound();
+            if (owner.Id == user.Id) {
+                _services.Notifier.Error(T("You cannot start a conversation with yourself."));
+                return Redirect("~/");
+            }
 
             var existing = _conversationService
                 .GetConversationQuery()
@@ -91,7 +113,7 @@ namespace Devq.Conversations.Controllers
 
             // Existing conversation, redirect to it
             if (existing != null)
-                return RedirectToAction("Index", new {id = existing.Id});
+                return RedirectToAction("Details", new {id = existing.Id});
 
             var newConversation = _contentManager.New<ConversationPart>(Constants.ConversationTypeName);
             newConversation.Subject = subject;
@@ -130,7 +152,7 @@ namespace Devq.Conversations.Controllers
                 message.As<CommonPart>().Container = conversation.ContentItem;
             }
 
-            return RedirectToAction("Index", new {id = conversationId});
+            return RedirectToAction("Details", new {id = conversationId});
         }
 
         bool IUpdateModel.TryUpdateModel<TModel>(TModel model, string prefix, string[] includeProperties, string[] excludeProperties) {
